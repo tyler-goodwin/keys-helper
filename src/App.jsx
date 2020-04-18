@@ -4,7 +4,7 @@ import './App.scss';
 
 function App() {
   return (
-    <div>
+    <div className="container content">
       <header className="App-header">
         <div className="container">
           <h1 className="title">Music Utils</h1>

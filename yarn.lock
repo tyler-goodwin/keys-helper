@@ -10629,6 +10629,11 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
+vexflow@^3.0.7:
+  version "3.0.7"
+  resolved "https://registry.yarnpkg.com/vexflow/-/vexflow-3.0.7.tgz#ccc5c240ad75a628f7f73a676cf6d23e751e4aa1"
+  integrity sha512-aO7e2LBCLvhuaL+B2LZgSzw/3Pc6JEYFHqDxNsS5SeDaI4jMd1TWjGLgZsfnuUBV8mOUlbg9WlgFLSR9kK2ajg==
+
 vm-browserify@^1.0.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/vm-browserify/-/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"

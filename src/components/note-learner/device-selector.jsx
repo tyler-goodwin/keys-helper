@@ -2,7 +2,7 @@ import React from 'react';
 
 export default function DeviceSelector({handleDeviceChange, value, devices }) {
     return (
-      <div className="field is-horizontal">
+      <div className="field is-horizontal is-pulled-right">
         <div className="field-label is-normal" style={{minWidth: '120px'}}>
           <label className="label">Midi Device</label>
         </div>

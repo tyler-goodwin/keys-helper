@@ -2,13 +2,18 @@
 
 @import url('https://fonts.googleapis.com/css?family=Fira+Sans:400,700');
 
+$blue-primary: #202c59;
+$blue-secondary: #0582CA;
+$blue-light: #00A6FB;
+$black: #051923; 
+
 $family-sans-serif: 'Fira Sans', sans-serif;
-// $grey-dark: $brown;
-// $grey-light: $beige-light;
-// $primary: $purple;
-// $link: $pink;
+$grey-dark: $black;
+$grey-light: lighten($black, 50%);
+$primary: $blue-primary;
+$link: $blue-secondary;
 $widescreen-enabled: false;
-$fullhd-enabled: false;
+$fullhd-enabled: true;
 
 // Update some of Bulma's component variables
 // $body-background-color: $beige-lighter;
@@ -18,6 +23,19 @@ $input-shadow: none;
 
 h1, h2, h3, h4, h5, h6 {
   font-weight: normal;
+}
+
+body {
+  background-color: $blue-primary;
+  min-height: 100vh;
+}
+
+.content {
+  background-color: white;
+  min-height: 80vh;
+  padding-left: 18px;
+  padding-right: 18px;
+  
 }
 
 @import "../node_modules/bulma/bulma.sass";
