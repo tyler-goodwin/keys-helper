@@ -18,7 +18,7 @@ const DURATIONS = {
 
 export default class ToneNotePlayer {
   constructor() {
-    this.synth = new Tone.Synth().toMaster();
+    this.synth = new Tone.PolySynth(10).toMaster();
   }
 
   play(note) {
@@ -26,5 +26,13 @@ export default class ToneNotePlayer {
       throw new Error(`Invalid note '${note}' provided`);
     }
     this.synth.triggerAttackRelease(NOTES[note], DURATIONS.eighth);
+  }
+
+  start(note) {
+    this.synth.triggerAttack(note);
+  }
+
+  stop(note) {
+    this.synth.triggerRelease(note);
   }
 }
