@@ -39,3 +39,20 @@ body {
 }
 
 @import "../node_modules/bulma/bulma.sass";
+
+.border-bottom-danger, .border-bottom-success, .border-bottom-info {
+  border-bottom-style: solid;
+  border-bottom-width: 5px;
+}
+
+.border-bottom-danger {
+  border-bottom-color: $danger;
+}
+
+.border-bottom-success {
+  border-bottom-color: $success;
+}
+
+.border-bottom-info {
+  border-bottom-color: $info;
+}

@@ -1,19 +1,8 @@
 import * as Tone from 'tone';
 
-// TODO: Add sharps/flats
-const NOTES = {
-  A: 'A4',
-  B: 'B4',
-  C: 'C4',
-  D: 'D4',
-  E: 'E4',
-  F: 'F4',
-  G: 'G4',
-};
-
 const DURATIONS = {
-  quarter: "4n",
-  eighth: "8n"
+  quarter: '4n',
+  eighth: '8n',
 };
 
 export default class ToneNotePlayer {
@@ -21,11 +10,9 @@ export default class ToneNotePlayer {
     this.synth = new Tone.PolySynth(10).toMaster();
   }
 
+  // Note: {name: "C", octave: 4}
   play(note) {
-    if (!NOTES[note]) {
-      throw new Error(`Invalid note '${note}' provided`);
-    }
-    this.synth.triggerAttackRelease(NOTES[note], DURATIONS.eighth);
+    this.synth.triggerAttackRelease(`${note.name}${note.octave}`, DURATIONS.eighth);
   }
 
   start(note) {

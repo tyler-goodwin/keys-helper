@@ -1,8 +1,12 @@
 import React from 'react';
 import NoteLearnerLib from '../lib/note-learner';
 import NotePlayer from '../lib/note-player';
+import ConfigPersistence from '../lib/config-persistence';
 import GameView, { NOTE_STATE } from './note-learner/game-view';
 import DeviceSelector from './note-learner/device-selector';
+import Options from './note-learner/options';
+
+import './note-learner/note-learner.css';
 
 const GAME_STATE = Object.freeze({
   SETUP: 0,
@@ -50,6 +54,7 @@ export default class NoteLearner extends React.Component {
 
     this.player = new NotePlayer();
     this.learner = new NoteLearnerLib(this.player);
+    this.config =new ConfigPersistence("NOTE_LEARNER");
     
     this.state = {
       gameState: GAME_STATE.SETUP,
@@ -57,18 +62,38 @@ export default class NoteLearner extends React.Component {
       midiEnabled: false,
       currentNote: '',
       noteState: NOTE_STATE.WAITING,
+      showNoteName: true,
+      octaves: 1,
     }
+    this.learner.setOctaves(this.state.octaves);
     
     this.updateDevice = this.updateDevice.bind(this);
     this.startGame = this.startGame.bind(this);
     this.handleDeviceChange = this.handleDeviceChange.bind(this);
     this.noteResultHandler = this.noteResultHandler.bind(this);
     this.nextNote = this.nextNote.bind(this);
-    
+    this.handleShowNoteNameChange = this.handleShowNoteNameChange.bind(this);
+    this.handleOctaveChange = this.handleOctaveChange.bind(this);
+    this.saveSettings = this.saveSettings.bind(this);
+
     window.learner = this.learner
+  }
+
+  loadSettings() {
+    if(!this.config.isSet()) return;
+
+    const config = this.config.load();
+    this.setState(config, () => { this.learner.setOctaves(this.state.octaves) });
+  }
+
+  saveSettings() {
+    const { octaves, showNoteName, deviceId } = this.state;
+    const settings = { octaves, showNoteName, deviceId };
+    this.config.save(settings);
   }
   
   componentDidMount() {
+
     this.learner.on('noteChecked', this.noteResultHandler);
     this.learner.enableMidi()
     .then(() => {
@@ -79,7 +104,7 @@ export default class NoteLearner extends React.Component {
         gameState: GAME_STATE.WAITING, 
         midiEnabled: true, 
         deviceId: deviceId
-      })
+      }, this.loadSettings);
     }).catch(err => {
       console.error(err);
       this.setState({ gameState: GAME_STATE.NOT_SUPPORTED })
@@ -95,7 +120,7 @@ export default class NoteLearner extends React.Component {
 
   updateDevice(deviceId) {
     this.learner.setDevice(deviceId);
-    this.setState({ deviceId });
+    this.setState({ deviceId }, this.saveSettings);
   }
 
   nextNote() {
@@ -118,12 +143,32 @@ export default class NoteLearner extends React.Component {
   }
 
   handleDeviceChange(event) {
-    console.log("Value: ", event.target.value);
     this.updateDevice(event.target.value);
   }
 
+  handleShowNoteNameChange(event) {
+    this.setState({
+      showNoteName: event.target.checked
+    }, this.saveSettings);
+  }
+
+  handleOctaveChange(event) {
+    this.learner.setOctaves(event.target.value);
+    this.setState({
+      octaves: event.target.value,
+    }, this.saveSettings);
+  }
+
   render() {
-    const { gameState, deviceId, currentNote, noteState } = this.state;
+    const { 
+      gameState, 
+      deviceId, 
+      currentNote, 
+      noteState,
+      showNoteName,
+      octaves,
+    } = this.state;
+
     let body;
     switch (gameState) {
       case GAME_STATE.NOT_SUPPORTED:
@@ -136,6 +181,7 @@ export default class NoteLearner extends React.Component {
         body = <GameView
           note={currentNote}
           noteState={noteState}
+          showName={showNoteName}
         />
         break;
       case GAME_STATE.SETUP:
@@ -154,7 +200,15 @@ export default class NoteLearner extends React.Component {
             handleDeviceChange={this.handleDeviceChange}
           />
         </GameHeader>
-        {body}
+        <div className="note-learner-body">
+          {body}
+        </div>
+        <Options
+          showNoteName={showNoteName}
+          showNoteNameHandler={this.handleShowNoteNameChange}
+          octaves={octaves}
+          octavesHandler={this.handleOctaveChange}
+        />
       </div>
     );
   }
