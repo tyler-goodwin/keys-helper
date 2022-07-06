@@ -1,6 +1,6 @@
-import React from 'react';
-import NoteLearner from './components/note-learner'
-import './App.scss';
+import React from "react";
+import NoteLearner from "./components/note-learner";
+import "./App.scss";
 
 function App() {
   return (
