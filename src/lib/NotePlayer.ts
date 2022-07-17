@@ -6,7 +6,7 @@ const DURATIONS = {
   eighth: "8n",
 };
 
-export default class ToneNotePlayer {
+export class ToneNotePlayer {
   synth: Tone.PolySynth;
 
   constructor() {

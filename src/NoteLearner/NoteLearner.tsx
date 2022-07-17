@@ -1,10 +1,13 @@
 import React from "react";
-import NoteLearnerLib from "../lib/NoteLearner";
-import NotePlayer from "../lib/NotePlayer";
-import ConfigPersistence from "../lib/ConfigPersistence";
-import GameView, { NOTE_STATE } from "./GameView";
-import DeviceSelector from "./DeviceSelector";
-import Options from "./options";
+import {
+  NoteLearner as NoteLearnerLib,
+  ConfigPersistence,
+  ToneNotePlayer as NotePlayer,
+  NoteWithClef,
+} from "../lib";
+import { GameView, NOTE_STATE } from "./GameView";
+import { DeviceSelector } from "./DeviceSelector";
+import { Options } from "./Options";
 
 import "./styles/NoteLearner.css";
 
@@ -19,7 +22,7 @@ function NotSupportedMessage() {
   return <h1>Your browser does not support WebMidi! Try Chrome instead.</h1>;
 }
 
-function StartButton({ startGame }) {
+const StartButton: React.FC<{ startGame: () => void }> = ({ startGame }) => {
   return (
     <div className="has-text-centered">
       <button className="button is-primary is-centered" onClick={startGame}>
@@ -27,9 +30,9 @@ function StartButton({ startGame }) {
       </button>
     </div>
   );
-}
+};
 
-function GameHeader({ children }) {
+const GameHeader: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   return (
     <div className="columns">
       <div className="column">
@@ -38,10 +41,32 @@ function GameHeader({ children }) {
       <div className="column">{children}</div>
     </div>
   );
-}
+};
 
-export class NoteLearner extends React.Component {
-  constructor(props) {
+type Settings = {
+  deviceId: string | null;
+  octaves: number;
+  showNoteName: boolean;
+};
+
+type State = {
+  gameState: number;
+  deviceId: string | null;
+  midiEnabled: boolean;
+  currentNote: NoteWithClef | null;
+  noteState: number;
+  showNoteName: boolean;
+  octaves: number;
+};
+
+type Props = {};
+
+export class NoteLearner extends React.Component<Props, State> {
+  player: NotePlayer;
+  learner: NoteLearnerLib;
+  config: ConfigPersistence;
+
+  constructor(props: Props) {
     super(props);
 
     this.player = new NotePlayer();
@@ -52,7 +77,7 @@ export class NoteLearner extends React.Component {
       gameState: GAME_STATE.SETUP,
       deviceId: null,
       midiEnabled: false,
-      currentNote: "",
+      currentNote: null,
       noteState: NOTE_STATE.WAITING,
       showNoteName: true,
       octaves: 1,
@@ -61,20 +86,19 @@ export class NoteLearner extends React.Component {
 
     this.updateDevice = this.updateDevice.bind(this);
     this.startGame = this.startGame.bind(this);
-    this.handleDeviceChange = this.handleDeviceChange.bind(this);
     this.noteResultHandler = this.noteResultHandler.bind(this);
     this.nextNote = this.nextNote.bind(this);
     this.handleShowNoteNameChange = this.handleShowNoteNameChange.bind(this);
     this.handleOctaveChange = this.handleOctaveChange.bind(this);
     this.saveSettings = this.saveSettings.bind(this);
 
-    window.learner = this.learner;
+    (window as any).learner = this.learner;
   }
 
   loadSettings() {
     if (!this.config.isSet()) return;
 
-    const config = this.config.load();
+    const config = this.config.load<Settings>();
     this.setState(config, () => {
       this.learner.setOctaves(this.state.octaves);
     });
@@ -82,7 +106,7 @@ export class NoteLearner extends React.Component {
 
   saveSettings() {
     const { octaves, showNoteName, deviceId } = this.state;
-    const settings = { octaves, showNoteName, deviceId };
+    const settings: Settings = { octaves, showNoteName, deviceId };
     this.config.save(settings);
   }
 
@@ -116,7 +140,7 @@ export class NoteLearner extends React.Component {
     });
   }
 
-  updateDevice(deviceId) {
+  updateDevice(deviceId: string) {
     this.learner.setDevice(deviceId);
     this.setState({ deviceId }, this.saveSettings);
   }
@@ -128,7 +152,7 @@ export class NoteLearner extends React.Component {
     });
   }
 
-  noteResultHandler(successful) {
+  noteResultHandler(successful: boolean) {
     if (successful) {
       setTimeout(this.nextNote, 250);
       this.setState({ noteState: NOTE_STATE.CORRECT });
@@ -140,24 +164,20 @@ export class NoteLearner extends React.Component {
     }
   }
 
-  handleDeviceChange(event) {
-    this.updateDevice(event.target.value);
-  }
-
-  handleShowNoteNameChange(event) {
+  handleShowNoteNameChange(showNoteName: boolean) {
     this.setState(
       {
-        showNoteName: event.target.checked,
+        showNoteName,
       },
       this.saveSettings
     );
   }
 
-  handleOctaveChange(event) {
-    this.learner.setOctaves(event.target.value);
+  handleOctaveChange(octaves: number) {
+    this.learner.setOctaves(octaves);
     this.setState(
       {
-        octaves: event.target.value,
+        octaves,
       },
       this.saveSettings
     );
@@ -182,6 +202,7 @@ export class NoteLearner extends React.Component {
         body = <StartButton startGame={this.startGame} />;
         break;
       case GAME_STATE.RUNNING:
+        if (!currentNote) throw new Error("Game started without note!");
         body = (
           <GameView
             note={currentNote}
@@ -203,15 +224,15 @@ export class NoteLearner extends React.Component {
           <DeviceSelector
             value={deviceId || ""}
             devices={this.learner.getDevices()}
-            handleDeviceChange={this.handleDeviceChange}
+            handleDeviceChange={this.updateDevice}
           />
         </GameHeader>
         <div className="note-learner-body">{body}</div>
         <Options
           showNoteName={showNoteName}
-          showNoteNameHandler={this.handleShowNoteNameChange}
+          onShowNoteNameChanged={this.handleShowNoteNameChange}
           octaves={octaves}
-          octavesHandler={this.handleOctaveChange}
+          onOctavesChanged={this.handleOctaveChange}
         />
       </div>
     );

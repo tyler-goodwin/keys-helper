@@ -1,6 +1,7 @@
 import React from "react";
-import Staff from "./staff";
-import "./styles/game-view.css";
+import { NoteName } from "../lib/types";
+import { Staff } from "./Staff";
+import "./styles/GameView.css";
 
 export const NOTE_STATE = Object.freeze({
   WAITING: 0,
@@ -8,7 +9,19 @@ export const NOTE_STATE = Object.freeze({
   INCORRECT: 2,
 });
 
-export default function GameView({ note, noteState, showName }) {
+interface Note {
+  name: NoteName;
+  octave: number;
+  clef: "treble" | "bass";
+}
+
+interface Props {
+  note: Note;
+  noteState: number;
+  showName?: boolean;
+}
+
+export const GameView: React.FC<Props> = ({ note, noteState, showName }) => {
   let colorClass;
   switch (noteState) {
     case NOTE_STATE.CORRECT:
@@ -38,4 +51,4 @@ export default function GameView({ note, noteState, showName }) {
       </div>
     </div>
   );
-}
+};

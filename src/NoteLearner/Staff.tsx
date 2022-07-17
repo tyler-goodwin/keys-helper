@@ -1,11 +1,12 @@
 import React, { useRef, useEffect } from "react";
+import { render } from "react-dom";
 import Vex from "vexflow";
+import type { NoteWithClef } from "../lib/NoteLearner";
 
 const { Formatter, Stave, StaveNote, Renderer } = Vex.Flow;
 
-//Notes should be in format {name: "C", octave: 4, clef: "treble"};
-function genVexNotes(notes) {
-  const genNotes = (clef) => {
+function genVexNotes(notes: NoteWithClef[]) {
+  const genNotes = (clef: "treble" | "bass") => {
     const n = notes
       .filter((n) => n.clef === clef)
       .map((n) => `${n.name}/${n.octave}`);
@@ -25,15 +26,23 @@ function genVexNotes(notes) {
   };
 }
 
-export default function Staff({ notes, className = "" }) {
-  const outer = useRef();
-  const rendererRef = useRef();
+type Props = {
+  notes: NoteWithClef[];
+  className?: string;
+};
+
+export const Staff: React.FC<Props> = ({ notes, className = "" }) => {
+  const outer = useRef<HTMLDivElement>(null);
+  const rendererRef = useRef<Vex.Renderer>(null);
 
   useEffect(() => {
-    if (rendererRef.current == null) {
+    if (rendererRef.current == null && outer.current) {
+      //@ts-expect-error
       rendererRef.current = new Renderer(outer.current, Renderer.Backends.SVG);
     }
     const renderer = rendererRef.current;
+    if (!renderer) throw new Error("No renderer has been setup");
+
     renderer.resize(140, 220);
     const vexNotes = genVexNotes(notes);
     const ctx = renderer.getContext();
@@ -54,4 +63,4 @@ export default function Staff({ notes, className = "" }) {
   }, [notes]);
 
   return <div ref={outer} className={className} />;
-}
+};

@@ -3,7 +3,7 @@ import { EventEmitter } from "events";
 import type { Note, NoteName, NotePlayer } from "./types";
 
 type OctaveRange = { min: number; max: number };
-type NoteWithClef = Note & { clef: "treble" | "bass" };
+export type NoteWithClef = Note & { clef: "treble" | "bass" };
 
 const OCTAVES: Record<number, OctaveRange> = Object.freeze({
   1: { min: 4, max: 4 },
@@ -33,10 +33,6 @@ function getRandomOctave(numOctaves: number) {
   return getRandom(o.min, o.max);
 }
 
-function buildNote(note: Note) {
-  return `${note.name}${note.octave}`;
-}
-
 const eventToNote = (event: NoteMessageEvent) => {
   return {
     name: event.note.name as NoteName,
@@ -53,7 +49,7 @@ function getClef({ name, octave }: Note) {
   return octave < 4 ? "bass" : "treble";
 }
 
-export default class NoteLearner extends EventEmitter {
+export class NoteLearner extends EventEmitter {
   note: null | NoteWithClef;
   numOctaves: number;
   device: null | Input;
@@ -67,11 +63,6 @@ export default class NoteLearner extends EventEmitter {
     this.numOctaves = 4;
     this.device = null;
     this.reportResultCallback = null;
-
-    this.nextNote = this.nextNote.bind(this);
-    this.checkNote = this.checkNote.bind(this);
-    this.setDevice = this.setDevice.bind(this);
-    this.enableMidi = this.enableMidi.bind(this);
   }
 
   // Returns a note name and plays that note
@@ -98,7 +89,7 @@ export default class NoteLearner extends EventEmitter {
     this.numOctaves = num;
   };
 
-  setDevice = (deviceId: string) => {
+  setDevice = (deviceId: string | null) => {
     if (this.device) {
       this.device.removeListener("noteon");
       this.device.removeListener("noteoff");

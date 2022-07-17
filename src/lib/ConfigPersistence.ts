@@ -1,6 +1,6 @@
 const { localStorage } = window;
 
-export default class ConfigPersistence {
+export class ConfigPersistence {
   key: string;
 
   constructor(key: string) {
