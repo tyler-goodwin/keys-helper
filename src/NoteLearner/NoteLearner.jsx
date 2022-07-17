@@ -2,11 +2,11 @@ import React from "react";
 import NoteLearnerLib from "../lib/note-learner";
 import NotePlayer from "../lib/note-player";
 import ConfigPersistence from "../lib/config-persistence";
-import GameView, { NOTE_STATE } from "./note-learner/game-view";
-import DeviceSelector from "./note-learner/device-selector";
-import Options from "./note-learner/options";
+import GameView, { NOTE_STATE } from "./GameView";
+import DeviceSelector from "./DeviceSelector";
+import Options from "./options";
 
-import "./note-learner/note-learner.css";
+import "./styles/NoteLearner.css";
 
 const GAME_STATE = Object.freeze({
   SETUP: 0,
@@ -40,7 +40,7 @@ function GameHeader({ children }) {
   );
 }
 
-export default class NoteLearner extends React.Component {
+export class NoteLearner extends React.Component {
   constructor(props) {
     super(props);
 

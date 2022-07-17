@@ -35,6 +35,7 @@ export default function Options({
               <input
                 name="ShowNoteName"
                 type="checkbox"
+                className="show-note-names-checkbox"
                 checked={showNoteName}
                 onChange={showNoteNameHandler}
               />
