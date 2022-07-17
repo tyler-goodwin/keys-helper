@@ -1,7 +1,7 @@
 import React from "react";
-import NoteLearnerLib from "../lib/note-learner";
-import NotePlayer from "../lib/note-player";
-import ConfigPersistence from "../lib/config-persistence";
+import NoteLearnerLib from "../lib/NoteLearner";
+import NotePlayer from "../lib/NotePlayer";
+import ConfigPersistence from "../lib/ConfigPersistence";
 import GameView, { NOTE_STATE } from "./GameView";
 import DeviceSelector from "./DeviceSelector";
 import Options from "./options";

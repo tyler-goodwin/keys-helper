@@ -1,27 +1,30 @@
 const { localStorage } = window;
 
 export default class ConfigPersistence {
-  constructor(key) {
+  key: string;
+
+  constructor(key: string) {
     this.key = key;
   }
 
-  save(config) {
+  save<T extends object>(config: T) {
     localStorage.setItem(this.key, JSON.stringify(config));
   }
 
-  load() {
+  load<T>(): T | null {
     try {
       const value = localStorage.getItem(this.key);
-      return JSON.parse(value);
+      if (value) return JSON.parse(value);
+      else return null;
     } catch (err) {
       /* eslint-disable */
-      console.error('Could not load previous config', err);
+      console.error("Could not load previous config", err);
       /* eslint-enable */
     }
     return null;
   }
 
-  isSet() {
-    return !!localStorage.getItem(this.key);
+  isSet(): Boolean {
+    return Boolean(localStorage.getItem(this.key));
   }
 }
