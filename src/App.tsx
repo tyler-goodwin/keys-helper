@@ -1,8 +1,8 @@
-import React from 'react';
-import NoteLearner from './components/note-learner'
-import './App.scss';
+import React from "react";
+import { NoteLearner } from "./NoteLearner";
+import "./App.scss";
 
-function App() {
+export const App: React.FC = () => {
   return (
     <div className="container content">
       <header className="App-header">
@@ -15,6 +15,6 @@ function App() {
       </div>
     </div>
   );
-}
+};
 
 export default App;

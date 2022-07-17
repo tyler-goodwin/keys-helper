@@ -1,12 +1,12 @@
-import React from 'react';
-import NoteLearnerLib from '../lib/note-learner';
-import NotePlayer from '../lib/note-player';
-import ConfigPersistence from '../lib/config-persistence';
-import GameView, { NOTE_STATE } from './note-learner/game-view';
-import DeviceSelector from './note-learner/device-selector';
-import Options from './note-learner/options';
+import React from "react";
+import NoteLearnerLib from "../lib/note-learner";
+import NotePlayer from "../lib/note-player";
+import ConfigPersistence from "../lib/config-persistence";
+import GameView, { NOTE_STATE } from "./GameView";
+import DeviceSelector from "./DeviceSelector";
+import Options from "./options";
 
-import './note-learner/note-learner.css';
+import "./styles/NoteLearner.css";
 
 const GAME_STATE = Object.freeze({
   SETUP: 0,
@@ -15,58 +15,50 @@ const GAME_STATE = Object.freeze({
   NOT_SUPPORTED: 3,
 });
 
-
 function NotSupportedMessage() {
-  return (
-    <h1>Your browser does not support WebMidi! Try Chrome instead.</h1>
-  )
+  return <h1>Your browser does not support WebMidi! Try Chrome instead.</h1>;
 }
 
-function StartButton({startGame}) {
+function StartButton({ startGame }) {
   return (
     <div className="has-text-centered">
-      <button 
-        className="button is-primary is-centered" 
-        onClick={startGame}
-      >
+      <button className="button is-primary is-centered" onClick={startGame}>
         Start
       </button>
     </div>
-  )
+  );
 }
 
-function GameHeader({children}) {
+function GameHeader({ children }) {
   return (
     <div className="columns">
-        <div className="column">
-          <h1>Note Learner</h1>
-        </div>
-        <div className="column">
-          {children}
-        </div>
+      <div className="column">
+        <h1>Note Learner</h1>
       </div>
-  )
+      <div className="column">{children}</div>
+    </div>
+  );
 }
 
-export default class NoteLearner extends React.Component {
+export class NoteLearner extends React.Component {
   constructor(props) {
     super(props);
 
     this.player = new NotePlayer();
     this.learner = new NoteLearnerLib(this.player);
-    this.config =new ConfigPersistence("NOTE_LEARNER");
-    
+    this.config = new ConfigPersistence("NOTE_LEARNER");
+
     this.state = {
       gameState: GAME_STATE.SETUP,
       deviceId: null,
       midiEnabled: false,
-      currentNote: '',
+      currentNote: "",
       noteState: NOTE_STATE.WAITING,
       showNoteName: true,
       octaves: 1,
-    }
+    };
     this.learner.setOctaves(this.state.octaves);
-    
+
     this.updateDevice = this.updateDevice.bind(this);
     this.startGame = this.startGame.bind(this);
     this.handleDeviceChange = this.handleDeviceChange.bind(this);
@@ -76,14 +68,16 @@ export default class NoteLearner extends React.Component {
     this.handleOctaveChange = this.handleOctaveChange.bind(this);
     this.saveSettings = this.saveSettings.bind(this);
 
-    window.learner = this.learner
+    window.learner = this.learner;
   }
 
   loadSettings() {
-    if(!this.config.isSet()) return;
+    if (!this.config.isSet()) return;
 
     const config = this.config.load();
-    this.setState(config, () => { this.learner.setOctaves(this.state.octaves) });
+    this.setState(config, () => {
+      this.learner.setOctaves(this.state.octaves);
+    });
   }
 
   saveSettings() {
@@ -91,26 +85,30 @@ export default class NoteLearner extends React.Component {
     const settings = { octaves, showNoteName, deviceId };
     this.config.save(settings);
   }
-  
-  componentDidMount() {
 
-    this.learner.on('noteChecked', this.noteResultHandler);
-    this.learner.enableMidi()
-    .then(() => {
-      const devices = this.learner.getDevices();
-      const deviceId = devices.length > 0 ? devices[0].id : null;
-      this.learner.setDevice(deviceId);
-      this.setState({ 
-        gameState: GAME_STATE.WAITING, 
-        midiEnabled: true, 
-        deviceId: deviceId
-      }, this.loadSettings);
-    }).catch(err => {
-      console.error(err);
-      this.setState({ gameState: GAME_STATE.NOT_SUPPORTED })
-    });
+  componentDidMount() {
+    this.learner.on("noteChecked", this.noteResultHandler);
+    this.learner
+      .enableMidi()
+      .then(() => {
+        const devices = this.learner.getDevices();
+        const deviceId = devices.length > 0 ? devices[0].id : null;
+        this.learner.setDevice(deviceId);
+        this.setState(
+          {
+            gameState: GAME_STATE.WAITING,
+            midiEnabled: true,
+            deviceId: deviceId,
+          },
+          this.loadSettings
+        );
+      })
+      .catch((err) => {
+        console.error(err);
+        this.setState({ gameState: GAME_STATE.NOT_SUPPORTED });
+      });
   }
-  
+
   startGame() {
     this.setState({
       gameState: GAME_STATE.RUNNING,
@@ -124,14 +122,14 @@ export default class NoteLearner extends React.Component {
   }
 
   nextNote() {
-    this.setState({ 
+    this.setState({
       currentNote: this.learner.nextNote(),
       noteState: NOTE_STATE.WAITING,
     });
   }
 
   noteResultHandler(successful) {
-    if(successful) {
+    if (successful) {
       setTimeout(this.nextNote, 250);
       this.setState({ noteState: NOTE_STATE.CORRECT });
     } else {
@@ -147,23 +145,29 @@ export default class NoteLearner extends React.Component {
   }
 
   handleShowNoteNameChange(event) {
-    this.setState({
-      showNoteName: event.target.checked
-    }, this.saveSettings);
+    this.setState(
+      {
+        showNoteName: event.target.checked,
+      },
+      this.saveSettings
+    );
   }
 
   handleOctaveChange(event) {
     this.learner.setOctaves(event.target.value);
-    this.setState({
-      octaves: event.target.value,
-    }, this.saveSettings);
+    this.setState(
+      {
+        octaves: event.target.value,
+      },
+      this.saveSettings
+    );
   }
 
   render() {
-    const { 
-      gameState, 
-      deviceId, 
-      currentNote, 
+    const {
+      gameState,
+      deviceId,
+      currentNote,
       noteState,
       showNoteName,
       octaves,
@@ -172,37 +176,37 @@ export default class NoteLearner extends React.Component {
     let body;
     switch (gameState) {
       case GAME_STATE.NOT_SUPPORTED:
-        body = <NotSupportedMessage />
+        body = <NotSupportedMessage />;
         break;
       case GAME_STATE.WAITING:
-        body = <StartButton startGame={this.startGame} />
+        body = <StartButton startGame={this.startGame} />;
         break;
       case GAME_STATE.RUNNING:
-        body = <GameView
-          note={currentNote}
-          noteState={noteState}
-          showName={showNoteName}
-        />
+        body = (
+          <GameView
+            note={currentNote}
+            noteState={noteState}
+            showName={showNoteName}
+          />
+        );
         break;
       case GAME_STATE.SETUP:
-        body = <h4>Loading...</h4>
+        body = <h4>Loading...</h4>;
         break;
       default:
-        body = <h4>UNKNOWN STATE. WHAT?!?!</h4>
+        body = <h4>UNKNOWN STATE. WHAT?!?!</h4>;
     }
 
     return (
       <div>
         <GameHeader>
-          <DeviceSelector 
+          <DeviceSelector
             value={deviceId || ""}
             devices={this.learner.getDevices()}
             handleDeviceChange={this.handleDeviceChange}
           />
         </GameHeader>
-        <div className="note-learner-body">
-          {body}
-        </div>
+        <div className="note-learner-body">{body}</div>
         <Options
           showNoteName={showNoteName}
           showNoteNameHandler={this.handleShowNoteNameChange}
@@ -212,5 +216,4 @@ export default class NoteLearner extends React.Component {
       </div>
     );
   }
-
 }

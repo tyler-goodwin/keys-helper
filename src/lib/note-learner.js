@@ -1,4 +1,4 @@
-import WebMidi from 'webmidi';
+import { WebMidi } from 'webmidi';
 import EventEmitter from 'events';
 
 const OCTAVES = {
@@ -73,7 +73,10 @@ export default class NoteLearner extends EventEmitter {
   }
 
   checkNote(note) {
-    this.emit('noteChecked', this.note.name === note.name && this.note.octave === note.octave);
+    this.emit(
+      'noteChecked',
+      this.note.name === note.name && this.note.octave === note.octave,
+    );
   }
 
   // Can be 1-4
